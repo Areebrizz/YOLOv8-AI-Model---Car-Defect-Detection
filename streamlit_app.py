@@ -1,49 +1,96 @@
 import streamlit as st
 from ultralytics import YOLO
-import cv2
 from PIL import Image
 import numpy as np
+import cv2
 import tempfile
 import os
 
-# Title
-st.title("🚗 Car Defect Detection with YOLOv8")
+# Set page config
+st.set_page_config(
+    page_title="Car Defect Detection",
+    page_icon="🚘",
+    layout="centered",
+    initial_sidebar_state="expanded"
+)
 
-# Load model
-@st.cache_resource
-def load_model():
-    return YOLO("best.pt")  # Make sure best.pt is in same folder as app.py
+# Load the model (ensure best.pt is in repo or add public path)
+model = YOLO("best.pt")
 
-model = load_model()
+# Sidebar
+with st.sidebar:
+    st.title("🔧 App Info")
+    st.markdown("""
+        **Model**: YOLOv8 custom  
+        **Trained on**: Car defect images  
+        **Defects Detected**:
+        - Dent  
+        - Scratch  
+        - Crack  
+        - Paint Damage  
+        - Glass Break  
+        
+        💡 Upload a car image to get started.
+    """)
+    st.markdown("---")
+    st.write("Made by [Muhammad Areeb Rizwan](https://github.com/MuhammadAreebRizwan)")
+
+# Header
+st.markdown(
+    "<h1 style='text-align: center; color: #0C2340;'>🚗 Car Defect Detection</h1>", 
+    unsafe_allow_html=True
+)
+st.markdown("<p style='text-align: center;'>AI-powered visual inspection using YOLOv8</p>", unsafe_allow_html=True)
+st.markdown("---")
 
 # Upload image
-uploaded_file = st.file_uploader("Upload a car image", type=["jpg", "jpeg", "png"])
+uploaded_file = st.file_uploader("📤 Upload a car image", type=["jpg", "jpeg", "png"])
 
 if uploaded_file:
-    st.image(uploaded_file, caption="Uploaded Image", use_column_width=True)
+    image = Image.open(uploaded_file).convert("RGB")
+    st.image(image, caption="Uploaded Image", use_column_width=True)
 
-    # Save to a temp file
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as temp_file:
-        temp_file.write(uploaded_file.read())
-        temp_path = temp_file.name
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as tmp:
+        image.save(tmp.name)
+        temp_path = tmp.name
 
-    # Predict
-    results = model.predict(source=temp_path, imgsz=640, conf=0.5)
-    result = results[0]
+    # Run model
+    with st.spinner("🔍 Analyzing image..."):
+        results = model.predict(source=temp_path, imgsz=640, conf=0.5)
+        result = results[0]
+        output_img = result.plot()
+        output_img = cv2.cvtColor(output_img, cv2.COLOR_BGR2RGB)
 
-    # Show prediction
-    plotted_img = result.plot()
-    plotted_img = cv2.cvtColor(plotted_img, cv2.COLOR_BGR2RGB)
-    st.image(plotted_img, caption="Detected Defects", use_column_width=True)
+    # Tabs for Results
+    tab1, tab2 = st.tabs(["📸 Prediction", "📊 Defect Report"])
 
-    # Defect count
-    defect_counts = {}
-    for box in result.boxes:
-        class_id = int(box.cls)
-        class_name = model.names[class_id]
-        defect_counts[class_name] = defect_counts.get(class_name, 0) + 1
+    with tab1:
+        st.image(output_img, caption="AI Prediction", use_column_width=True)
 
-    st.subheader("🔍 Defect Summary")
-    for defect, count in defect_counts.items():
-        st.write(f"**{defect}**: {count}")
-    st.write(f"**Total Defects Detected:** {sum(defect_counts.values())}")
+    with tab2:
+        defect_counts = {}
+        for box in result.boxes:
+            class_id = int(box.cls)
+            class_name = model.names[class_id]
+            defect_counts[class_name] = defect_counts.get(class_name, 0) + 1
+
+        if defect_counts:
+            st.success("Defects detected:")
+            for defect, count in defect_counts.items():
+                st.markdown(f"- **{defect.capitalize()}**: {count}")
+            st.markdown(f"### ✅ Total: `{sum(defect_counts.values())}` defects found")
+        else:
+            st.info("No visible defects detected.")
+
+    # Clean temp
+    os.remove(temp_path)
+
+else:
+    st.warning("Please upload an image to begin.")
+
+# Footer
+st.markdown("---")
+st.markdown(
+    "<p style='text-align: center; font-size: 14px;'>© 2025 Muhammad Areeb Rizwan | Powered by Streamlit & YOLOv8</p>",
+    unsafe_allow_html=True
+)
