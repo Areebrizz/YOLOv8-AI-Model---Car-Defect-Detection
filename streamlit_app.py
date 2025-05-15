@@ -40,7 +40,7 @@ st.markdown(
     "<h1 style='text-align: center; color: #FFFFFF;'>🚗 Car Defect Detection</h1>", 
     unsafe_allow_html=True
 )
-st.markdown("<p style='text-align: center;'>AI-powered visual inspection using YOLOv8 - made by M Areeb R</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center;'>AI-powered visual inspection using YOLOv8 - <b>Made By M.Areeb</b></p>", unsafe_allow_html=True)
 st.markdown("---")
 
 # Upload image
