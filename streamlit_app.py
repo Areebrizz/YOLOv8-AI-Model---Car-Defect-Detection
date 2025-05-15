@@ -65,7 +65,7 @@ if uploaded_file:
     tab1, tab2 = st.tabs(["📸 Prediction", "📊 Defect Report"])
 
     with tab1:
-        st.image(output_img, caption="AI Prediction", use_column_width=True)
+       st.image(output_img, caption="AI Prediction", use_container_width=True)
 
     with tab2:
         defect_counts = {}
