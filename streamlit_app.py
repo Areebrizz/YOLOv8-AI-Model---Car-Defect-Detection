@@ -33,7 +33,7 @@ with st.sidebar:
         💡 Upload a car image to get started.
     """)
     st.markdown("---")
-    st.write("Made by [Muhammad Areeb Rizwan](https://www.linkedin.com/in/areebrizwan)")
+    st.write("Made by [Muhammad Areeb Rizwan](https://sites.google.com/view/m-areeb-rizwan/home)")
 
 # Header
 st.markdown(
