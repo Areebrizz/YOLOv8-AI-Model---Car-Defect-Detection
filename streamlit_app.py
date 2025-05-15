@@ -37,7 +37,7 @@ with st.sidebar:
 
 # Header
 st.markdown(
-    "<h1 style='text-align: center; color: #0C2340;'>🚗 Car Defect Detection</h1>", 
+    "<h1 style='text-align: center; color: #FFFFFF;'>🚗 Car Defect Detection</h1>", 
     unsafe_allow_html=True
 )
 st.markdown("<p style='text-align: center;'>AI-powered visual inspection using YOLOv8</p>", unsafe_allow_html=True)
