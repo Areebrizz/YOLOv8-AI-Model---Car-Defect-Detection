@@ -1,0 +1,49 @@
+echo "# YOLOv8-AI-Model---Car-Defect-Detection" >> README.md
+git init
+git add README.md
+git commit -m "first commit"
+git branch -M main
+git remote add origin https://github.com/Areebrizz/YOLOv8-AI-Model---Car-Defect-Detection.git
+git push -u origin main
+# Install ultralytics (YOLOv8 library)
+!pip install -q ultralytics
+
+from ultralytics import YOLO
+from google.colab import files
+import cv2
+from PIL import Image
+from IPython.display import display
+
+# Upload your trained model file (.pt)
+print("Upload your model file (best.pt):")
+uploaded_model = files.upload()
+model_filename = list(uploaded_model.keys())[0]
+
+# Load the uploaded model
+model = YOLO(model_filename)
+
+# Upload an image to test
+print("Upload an image to test:")
+uploaded_img = files.upload()
+image_path = list(uploaded_img.keys())[0]
+
+# Run prediction
+results = model.predict(source=image_path, imgsz=640, conf=0.5)
+result = results[0]
+
+# Display prediction on image
+plot = result.plot()
+plot_rgb = cv2.cvtColor(plot, cv2.COLOR_BGR2RGB)
+display(Image.fromarray(plot_rgb))
+
+# Print detected defects count
+defect_counts = {}
+for box in result.boxes:
+    class_id = int(box.cls)
+    class_name = model.names[class_id]
+    defect_counts[class_name] = defect_counts.get(class_name, 0) + 1
+
+print("\nDetected Defects:")
+for defect, count in defect_counts.items():
+    print(f"{defect}: {count}")
+print(f"Total defects detected: {sum(defect_counts.values())}")
